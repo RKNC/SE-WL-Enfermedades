@@ -20,15 +20,15 @@ class SistemaDiagnostico(KnowledgeEngine):
 
     @Rule(Fact(fiebre=True), Fact(dificultad_respirar=True), Fact(tos_seca=True))
     def covid19(self):
-        self.diagnostico = "Probabilidad alta de tener 'COVID-19'"
+        self.diagnostico = "COVID-19"
 
     @Rule(AND(Fact(fiebre=True), Fact(tos_productiva=True), Fact(dificultad_respirar=True), Fact(congestion_nasal=True), Fact(fatiga=True)))
     def gripa_severa(self):
-            self.diagnostico = "Tu diagnóstico posible es 'Gripe severa'"
+            self.diagnostico = "Gripe severa"
 
     @Rule(AND(Fact(fiebre=True), Fact(tos_seca=True), Fact(dolor_garganta=True), Fact(dolor_cabeza=True)))
     def faringitis(self):
-        self.diagnostico = "Tu diagnóstico es 'Faringitis'"
+        self.diagnostico = "Faringitis"
 
     @Rule(Fact(diagnostico=None))
     def sin_diagnostico(self):
@@ -120,10 +120,10 @@ def main():
     while True:
         obtener_sintomas()
         respuesta = input("\n¿Desea realizar otra consulta? (s/n): ").lower()
-        if respuesta == 's':
+        if respuesta != 's':
             break
-        if respuesta == 'n':
-            print("Gracias por usar el sistema de diagnóstico. Recuerda que este diagnóstico es referecnail; visita un especialista para atención médica¡Que te mejores pronto!")
+        elif respuesta == 'n':
+            print("Gracias por usar el sistema de diagnóstico. ¡Que te mejores pronto!")
             break
         else:
             print("Respuesta inválida. Por favor, ingresa 's' para sí o 'n' para no.")
