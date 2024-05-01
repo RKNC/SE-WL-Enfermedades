@@ -3,62 +3,37 @@ from pyknow import *
 class SistemaDiagnostico(KnowledgeEngine):
     def __init__(self):
         super().__init__()
+        self.diagnostico = None
+        self.puntaje_maximo = 0
 
     @DefFacts()
     def _inicializar(self):
-        yield Fact(fiebre=False)
-        yield Fact(tos_seca=False)
-        yield Fact(tos_productiva=False)
-        yield Fact(dolor_garganta=False)
-        yield Fact(dificultad_respirar=False)
-        yield Fact(congestion_nasal=False)
-        yield Fact(fatiga=False)
-        yield Fact(dolor_cabeza=False)
-        yield Fact(malestar_general=False)
-        yield Fact(diagnostico_establecido=False)
+        yield Fact(fiebre=None)
+        yield Fact(tos_seca=None)
+        yield Fact(tos_productiva=None)
+        yield Fact(dolor_garganta=None)
+        yield Fact(dificultad_respirar=None)
+        yield Fact(congestion_nasal=None)
+        yield Fact(fatiga=None)
+        yield Fact(dolor_cabeza=None)
+        yield Fact(malestar_general=None)
 
-    @Rule(AND(Fact(fiebre=True),
-              Fact(tos_seca=True),
-              Fact(dificultad_respirar=True),
-              Fact(congestion_nasal=False),
-              Fact(dolor_garganta=False),
-              NOT(Fact(diagnostico_establecido=True))))
+    @Rule(Fact(fiebre=True), Fact(dificultad_respirar=True), Fact(tos_seca=True))
     def covid19(self):
-        self.diagnostico_establecido = True
-        print("\nEnfermedad probable: COVID-19")
-        print("Descripción: COVID-19 es una enfermedad infecciosa causada por el coronavirus SARS-CoV-2. Los síntomas comunes incluyen fiebre, tos seca y dificultad para respirar.")
-        print("Posibles causas: Contacto con una persona infectada o superficies contaminadas.")
-        print("Duración: Varía, puede ser desde unos pocos días hasta varias semanas.")
-        print("Tratamiento: Reposo, hidratación adecuada y medicamentos para aliviar los síntomas. Consulte a un médico para un tratamiento adecuado.")
-    @Rule(Fact(fiebre=True),
-      Fact(tos_productiva=True),
-      Fact(dolor_garganta=True),
-      Fact(dificultad_respirar=True),
-      Fact(congestion_nasal=True),
-      Fact(fatiga=True),
-      Fact(dolor_cabeza=True),
-      Fact(malestar_general=True),
-      NOT(Fact(diagnostico_establecido=True)))
+        self.diagnostico = "COVID-19"
+
+    @Rule(AND(Fact(fiebre=True), Fact(tos_productiva=True), Fact(dificultad_respirar=True), Fact(congestion_nasal=True), Fact(fatiga=True)))
     def gripa_severa(self):
-        self.diagnostico_establecido = True
-        print("\nEnfermedad probable: Gripe severa")
-        print("Descripción: La gripe severa es una forma grave de la enfermedad viral conocida como gripe. Los síntomas comunes incluyen fiebre, tos productiva, dolor de garganta, dificultad para respirar, congestión nasal, fatiga, dolor de cabeza y malestar general.")
-        print("Posibles causas: Infección con una cepa particularmente virulenta del virus de la influenza.")
-        print("Duración: Por lo general, dura de una a dos semanas, pero puede prolongarse si se presentan complicaciones.")
-        print("Tratamiento: Reposo, hidratación adecuada, medicamentos antivirales y analgésicos para aliviar los síntomas. Es recomendable consultar a un médico de inmediato para un tratamiento adecuado y evitar complicaciones graves.")
-    # Aqui se pueden aumentar los datos y reglas para tener más enfermedades dosponibles (By:Rogger)
-    @Rule(Fact(diagnostico_establecido=False),
-          NOT(OR(Fact(fiebre=True),
-                 Fact(tos_seca=True),
-                 Fact(tos_productiva=True),
-                 Fact(dolor_garganta=True),
-                 Fact(dificultad_respirar=True),
-                 Fact(congestion_nasal=True),
-                 Fact(fatiga=True),
-                 Fact(dolor_cabeza=True),
-                 Fact(malestar_general=True))))
+            self.diagnostico = "Gripe severa"
+
+    @Rule(AND(Fact(fiebre=True), Fact(tos_seca=True), Fact(dolor_garganta=True), Fact(dolor_cabeza=True)))
+    def faringitis(self):
+        self.diagnostico = "Faringitis"
+
+    @Rule(Fact(diagnostico=None))
     def sin_diagnostico(self):
-        print("\nNo se puede determinar el diagnóstico con los síntomas proporcionados. Se recomienda consultar a un médico para un diagnóstico preciso y un tratamiento adecuado.")
+        self.diagnostico = "No se puede determinar el diagnóstico con los síntomas proporcionados."
+
 def obtener_sintomas():
     engine = SistemaDiagnostico()
     engine.reset()
@@ -105,7 +80,6 @@ def obtener_sintomas():
             break
         else:
             print("Respuesta inválida. Por favor, ingresa 's' para sí o 'n' para no.")
-
     while True:
         congestion_nasal = input("¿Tienes congestión nasal? (s/n): ").lower()
         if congestion_nasal == 's' or congestion_nasal == 'n':
@@ -140,8 +114,19 @@ def obtener_sintomas():
 
     engine.run()
 
+    print("\nDiagnóstico:", engine.diagnostico)
+
 def main():
-    obtener_sintomas()
+    while True:
+        obtener_sintomas()
+        respuesta = input("\n¿Desea realizar otra consulta? (s/n): ").lower()
+        if respuesta != 's':
+            break
+        elif respuesta == 'n':
+            print("Gracias por usar el sistema de diagnóstico. ¡Que te mejores pronto!")
+            break
+        else:
+            print("Respuesta inválida. Por favor, ingresa 's' para sí o 'n' para no.")
 
 if __name__ == "__main__":
     main()
